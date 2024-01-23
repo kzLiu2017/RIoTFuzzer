@@ -178,9 +178,6 @@ class RandomValues:
         return "false"
 
     def printable_chars(self):
-        #len = numpy.random.choice(self.proposed_vals['array']['fun'], p=self.proposed_vals['array']['dist'])()
-        # FIXME: find a way to use empty strings
-        #len += 1
         len = 4
         return "\"" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(len)) + "\""
 
@@ -235,53 +232,8 @@ class RandomValues:
     def fuzz_java_nio_ByteBuffer(self, obj_creator, *kargs, **kwargs):
         return self.fuzz_type('java.nio.ByteBuffer', obj_creator, True, True, *kargs, **kwargs)
 
-# xiaomi plug
 sp_dict = {2:[1,2], 3:[2,3,4], 4:[1,2,3], 5:[1,2], 7:[1], 8:[1,2,3], 9:[1,2], 10:[1,2,3], 13:[1], 14:[1,2], 15:[1]}
 key_list = [2,3,4,5,7,8,9,10,13,14,15]
-# outdoor camera
-# sp_dict = {2:[2,3,4,5], 4:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], 5:[1,2,3,4,5]}
-# key_list = [2,4,5]
-# mi camera 2k 
-# sp_dict = {2:[1,2,3,4,5], 3:[1], 5:[1,2,3,4,5], 6:[2,3,5,6,7,8]}
-# key_list = [2,3,5,6]
-# # xiaomi gateway 
-# sp_dict = {2:[1,3,5], 6:[1,2,3], 7:[1]}
-# key_list = [2,6,7]
-# xiaomi humidifier 2 
-# sp_dict = {2:[1,5,6,8], 5:[1], 6:[1], 7:[6,8]}
-# key_list = [2,5,6,7]
-# yeelight led
-# sp_dict = {2:[1,2,3,4,5], 3:[1,2,3]}
-# key_list = [2,3]
-# gosund CP6
-# sp_dict = {2:[1], 3:[1,2,3,4], 4:[1,2], 8:[1,2], 9:[1,2], 10:[1,2,3,4], 12:[1,2,3,4,6]}
-# key_list = [2,3,4,8,9,10,12]
-# xiaoai play zengqiang
-# sp_dict = {2:[1,2], 3:[3], 4:[1], 5:[3], 6:[1,4], 7:[1,2]}
-# key_list = [2,3,4,5,6,7]
-# xiaomao yuntai camera 
-# sp_dict = {2:[1,2], 3:[1,2,3,4], 5:[1,2,3,4,5], 7:[1,2,3,4,5,6,7,8], 8:[1,2,3,4,5]}
-# key_list = [2,3,5,7,8]
-# sp_dict = {2:[1,2], 5:[1,2,3,4,5], 7:[2,3,4,5,6,8]}
-# key_list = [2,5,7]
-# philiph mijia light
-# sp_dict = {2:[1,2,3,4,5]}
-# key_list = [2]
-# # yeelight led 1s
-# sp_dict = {2:[1,2,3,4,5]}
-# key_list = [2]
-# xiaomi camera yuntai 2k
-# sp_dict = {2:[1,2,3,5,6,7,8,9], 3:[1], 5:[1,2,3,4,5]}
-# key_list = [2,3,5]
-# # gosund cp1 outlet
-# sp_dict = {2:[1], 6:[1], 7:[1,2]}
-# key_list = [2,6,7]
-# kongtiaobanlv
-# sp_dict = {2:[1,2,3], 3:[1,2]}
-# key_list = [2,3]
-# ThoughtHome
-# sp_dict = {2:[1,2,3,4], 5:[2]}
-# key_list = [2,5]
 types = ['int', 'byte', 'java.lang.Integer', 'java.lang.String', 'boolean', 'java.lang.Float']
 siid_piid_after = [0,0,0]
 siid_piid_types = [[copy.deepcopy(types) for _ in range(len(sp_dict[key]))] for key in sp_dict.keys()]
@@ -340,11 +292,9 @@ def response(flow: http.HTTPFlow) -> None:
 			body = flow.response.content.decode("utf-8")
 			body = json.loads(body)
 			response_time = flow.response.timestamp_end - flow.request.timestamp_start
-			# 转换为毫秒
 			response_time_ms = response_time * 1000
 
-			# 检查响应时间是否大于110ms
-			if response_time_ms < 110:
+			if response_time_ms < 300:
 				response_result = body["result"][0]
 				code = response_result["code"]
 				if code != -704002000:
@@ -355,99 +305,3 @@ def response(flow: http.HTTPFlow) -> None:
 						result[siid][piid][type_after] = result[siid][piid][type_after] + 1
 					else:
 						del siid_piid_types[siid][piid][type_after]
-
-
-# def request(flow: http.HTTPFlow) -> None:
-# 	if flow.request.path == "/app/miotspec/prop/set":
-# 		#print(flow.request.urlencoded_form)
-# 		body = flow.request.urlencoded_form['data']
-# 		body_new = body.replace('\"siid\":6,\"piid\":1', '\"siid\":2,\"piid\":2')
-# 		ssecurity = "GcbkxJfmMt4MKgrpXIC+CA=="
-# 		uri = "/miotspec/prop/set"
-# 		#print(body_new, body)
-# 		sig = sign_data(uri, body_new, ssecurity)
-# 		#print("sig", sig["signature"], "nonce", sig["_nonce"])
-# 		flow.request.urlencoded_form['data'] = body_new
-# 		flow.request.urlencoded_form['signature'] = sig["signature"]
-# 		flow.request.urlencoded_form['_nonce'] = sig["_nonce"]
-
-# def request(flow: http.HTTPFlow) -> None:
-# 	if flow.request.path == "/app/miotspec/prop/set":
-# 		# print(flow.request.urlencoded_form)
-# 		body = flow.request.urlencoded_form['data']
-# 		if body.find("true") >= 0:
-# 			#body_new = body.replace('\"siid\":2', '\"siid\":2')
-# 			#body_new = body.replace('\"piid\":1', '\"piid\":3')
-# 			body_new = body.replace('\"value\":true', '\"value\":11111111111111111111111111111111111111111111111')
-# 			ssecurity = "GcbkxJfmMt4MKgrpXIC+CA=="
-# 			uri = "/miotspec/prop/set"
-# 			#print(body_new, body)
-# 			sig = sign_data(uri, body_new, ssecurity)
-# 			#print("sig", sig["signature"], "nonce", sig["_nonce"])
-# 			flow.request.urlencoded_form['data'] = body_new
-# 			flow.request.urlencoded_form['signature'] = sig["signature"]
-# 			flow.request.urlencoded_form['_nonce'] = sig["_nonce"]
-
-#philips
-# def request(flow: http.HTTPFlow) -> None:
-# 	if flow.request.path == "/app/miotspec/prop/set":
-# 		#print(flow.request.urlencoded_form)
-# 		body = flow.request.urlencoded_form['data']
-# 		if body.find("false") >= 0:
-# 			i = random.randint(0,2)
-# 			value = value_generation(i)
-# 			#body_new = body.replace('\"siid\":2', '\"siid\":2')
-# 			piid = random.randint(1,5)	
-# 			body_new = body.replace('\"piid\":1', ('\"piid\":' + str(piid)))
-# 			body_new = body_new.replace('\"value\":false', ('\"value\":' + str(value)))
-# 			ssecurity = "GcbkxJfmMt4MKgrpXIC+CA=="
-# 			uri = "/miotspec/prop/set"
-# 			# print(body_new, body)
-# 			sig = sign_data(uri, body_new, ssecurity)
-# 			#print("sig", sig["signature"], "nonce", sig["_nonce"])
-# 			flow.request.urlencoded_form['data'] = body_new
-# 			flow.request.urlencoded_form['signature'] = sig["signature"]
-# 			flow.request.urlencoded_form['_nonce'] = sig["_nonce"]
-
-
-
-
-# #camera
-# def request(flow: http.HTTPFlow) -> None:
-# 	if flow.request.path == "/app/miotspec/prop/set":
-# 		#print(flow.request.urlencoded_form)
-# 		body = flow.request.urlencoded_form['data']
-# 		if body.find("false") >= 0:
-# 			sp_dict = {2:[1,2,3,5,6,7,8,9], 3:[1], 5:[1,2,3,4,5]}
-# 			key_list = [2,3,5]
-# 			index = random.randint(0,2)
-# 			#i = random.randint(0,2)
-# 			#value = value_generation(i)
-# 			types = ['int', 'byte', 'java.lang.Integer', 'java.lang.String', 'boolean', 'java.lang.Double', 'java.lang.Float']
-# 			arrays = [True, False]
-# 			v = RandomValues()
-# 			empty_method = lambda *kargs, **kwargs: None
-
-# 			i = random.randint(0,6)
-# 			t = types[i]
-# 			method = 'fuzz_' + t.replace('.', '_')
-# 			value = ""
-# 			if hasattr(v, method):
-# 			    value = getattr(v, method)(empty_method)
-
-# 			siid = key_list[index]
-# 			piid = sp_dict.get(siid)[random.randint(0,len(sp_dict.get(siid))-1)]
-
-# 			body_new = body.replace('\"siid\":2', '\"siid\":' + str(siid))
-# 			body_new = body_new.replace('\"piid\":1', ('\"piid\":' + str(piid)))
-# 			if isinstance(value, str) == False:
-# 				value = str(value)
-# 			body_new = body_new.replace('\"value\":false', ('\"value\":' + value))
-# 			ssecurity = "GcbkxJfmMt4MKgrpXIC+CA=="
-# 			uri = "/miotspec/prop/set"
-# 			# print(body_new, body)
-# 			sig = sign_data(uri, body_new, ssecurity)
-# 			#print("sig", sig["signature"], "nonce", sig["_nonce"])
-# 			flow.request.urlencoded_form['data'] = body_new
-# 			flow.request.urlencoded_form['signature'] = sig["signature"]
-# 			flow.request.urlencoded_form['_nonce'] = sig["_nonce"]
