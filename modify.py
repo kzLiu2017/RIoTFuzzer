@@ -169,7 +169,7 @@ class RandomValues:
 sp_dict = {2:[1,2,3,5,6,7,8,9], 3:[1], 5:[1,2,3,4,5], 8:[1,2,3]}
 key_list = [2,3,5,8]
 
-types = ['int', 'byte', 'java.lang.Integer', 'java.lang.String', 'boolean', 'java.lang.Float']
+types = ['Int', 'Long', 'Double', 'String', 'Boolean', 'Float']
 
 
 max_length = max(len(v) for v in sp_dict.values())
