@@ -12,11 +12,44 @@ var new_key = "power"
 
 var new_value = "123"
 
+var control_commands = [{1:[1,2,3]}]
+
+var platform = "Xiaomi"
+
+var data_type = [[["int", "long", "string", "double", "float", "bool"], ["int", "long", "string", "double", "float", "bool"], "int", "long", "string", "double", "float", "bool"]]
+
+function generate_data_type(index, valueIndex){
+    dataTypeArray = data_type[index][valueIndex]
+    var randomIndex = Math.floor(Math.random() * dataTypeArray.length);
+    var data_type = dataTypeArray[randomIndex]
+    return data_type
+}
+
+function fuzzing_value_generation(index, valueIndex){
+    var data_type = generate_data_type(index,valueIndex)
+    
+}
+
+function command_select(){
+    var randomIndex = Math.floor(Math.random() * control_commands.length);
+    var selectedObject = control_commands[randomIndex];
+    
+    var keys = Object.keys(selectedObject);
+    var randomKeyIndex = Math.floor(Math.random() * keys.length);
+    var selectedKey = keys[randomKeyIndex];
+    
+    var values = selectedObject[selectedKey];
+    var randomValueIndex = Math.floor(Math.random() * values.length);
+    var selectedValue = values[randomValueIndex];
+
+    return [selectedKey, selectedValue, randomIndex, randomValueIndex]
+}
+
 Java.perform(function() {
     functionsToHook.forEach(function(functionInfo) {
         var className = functionInfo[0];
         var methodName = functionInfo[1];
-        var argCount = functionInfo[2]; // 注意：这里的参数个数仅用于确定重载方法，可能需要更详细的信息来正确匹配方法签名
+        var argCount = functionInfo[2]; 
 
         var clazz = Java.use(className);
         if (!clazz || !clazz[methodName]) {
@@ -24,12 +57,10 @@ Java.perform(function() {
             return;
         }
 
-        // 对于有重载的方法，需要具体指定哪一个版本的方法
         clazz[methodName].overloads.forEach(function(overload) {
-            if (overload.argumentTypes.length === argCount) { // 匹配参数个数
+            if (overload.argumentTypes.length === argCount) { 
                 overload.implementation = function() {
                     console.log("Entering " + className + "." + methodName);
-                    // 打印所有参数
                     for (var i = 0; i < arguments.length; i++) {
                         var arg = arguments[i];
                         var argType = (arg === null) ? "null" : typeof arg;
@@ -52,7 +83,7 @@ Java.perform(function() {
                     var retval = this[methodName].apply(this, arguments); // 调用原方法
                     console.log("Leaving " + className + "." + methodName);
                     console.log("Return value: " + retval);
-                    return retval; // 返回原方法的返回值
+                    return retval;
                 };
             }
         });
