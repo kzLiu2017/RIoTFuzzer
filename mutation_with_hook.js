@@ -199,8 +199,10 @@ Java.perform(function() {
                                 key_1_index = commandValueArray[2];
                                 key_2_index = commandValueArray[3];
                                 var new_value = fuzzing_value_generation(key_1_index, key_2_index);
-                                arguments[i] = arguments[i].replace(key, new_key);
-                                arguments[i] = arguments[i].replace(value, new_value);
+                                if (platform == "Jingdong"){
+                                    arguments[i] = arguments[i].replace(key, commandKey_2);
+                                    arguments[i] = arguments[i].replace(value, new_value);
+                                }
                             }
                         }
                     }
