@@ -276,7 +276,6 @@ Java.perform(function() {
                             }
                         }
                     }
-
                     var retval = this[methodName].apply(this, arguments); // 调用原方法
                     console.log("Leaving " + className + "." + methodName);
                     console.log("Return value: " + retval);
