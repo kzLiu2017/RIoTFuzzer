@@ -1,21 +1,44 @@
-var functionsToHook = [["com.jd.smart.dynamiclayout.view.html.WebViewJavascriptBridge", "_handleMessageFromJs", 5]]
+var functionsToHook = [["com.jd.smart.dynamiclayout.view.html.WebViewJavascriptBridge", "_handleMessageFromJs", 5]];
 
-var target_class = "string"
+var target_class = "string";
 
-var label = "current_value"
+var label = "current_value";
 
-var key = "Power"
+var key_1 = "Power";
 
-var value = "0"
+var key_2;
 
-var control_commands = [{1:[1,2,3]}]
+var value = "0";
 
-var platform = "Xiaomi"
+var control_commands = [{1:[1,2,3]}];
 
-var data_type = [[["int", "long", "string", "double", "float", "bool"], ["int", "long", "string", "double", "float", "bool"], "int", "long", "string", "double", "float", "bool"]]
+var platform = "Xiaomi";
+
+var all_data_type = ["int", "long", "string", "double", "float", "bool"];
+
+var data_type;
+
+var mode = "infer";
+
+var all_data_type_index = [0, 0, 0, 0, 0, 0];
+
+var data_type_index;
 
 const MAX_INT_32 = 2147483647;
 const MIN_INT_32 = -2147483648;
+
+function data_type_initial(){
+    data_type = control_commands.map(command => {
+        var key = Object.keys(command)[0];
+        var values = command[key];
+        return Array.from({length: values.length}, () => Array.from(all_data_type));
+    });
+    data_type_index = control_commands.map(command => {
+        var key = Object.keys(command)[0];
+        var values = command[key];
+        return Array.from({length: values.length}, () => Array.from(all_data_type_index));
+    });
+}
 
 
 class RandomValues {
@@ -137,16 +160,46 @@ function generate_data_type(index, valueIndex){
     return data_type;
 }
 
-function generate_value_for_specific_data_type(data_type){
+function generate_value_for_specific_data_type(data_type_tmp){
     const randomValues = new RandomValues();
-    var randomValue = randomValues.generateByTypeName(data_type);
+    var randomValue = randomValues.generateByTypeName(data_type_tmp);
     return randomValue;
 }
 
 function fuzzing_value_generation(index, valueIndex){
-    var data_type = generate_data_type(index,valueIndex);
-    var value = generate_value_for_specific_data_type(data_type);
+    var mutate_data_type = generate_data_type(index,valueIndex);
+    var value = generate_value_for_specific_data_type(mutate_data_type);
     return value;
+}
+
+function getNthKey(obj, n) {
+    const keys = Object.keys(obj);
+    if (n > 0 && n <= keys.length) {
+        return keys[n - 1];
+    }
+    return undefined;
+}
+
+function infer_value_generation(){
+    for (var i = 0; i < data_type_index.length; i++) {
+        for (var j = 0; j < data_type_index[i].length; j++) {
+            for (var k = 0; k < data_type_index[i][j].length; k++) {
+                var value = data_type_index[i][j][k];
+                if (value < 6) {
+                    mutate_data_type = data_type[i][j][k];
+                    var mutation_value = generate_value_for_specific_data_type(mutate_data_type);
+                    var mutation_command = getNthKey(control_commands[i], j)
+                    value = value + 1;
+                    data_type_index[i][j][k] = value;
+                    return [mutation_command[k], mutation_value];
+                } else {
+                    console.log(`Skipping value: ${value} at [${i}][${j}][${k}]`);
+                    continue;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 function command_select(){
@@ -198,9 +251,26 @@ Java.perform(function() {
                                 commandKey_2 = commandValueArray[1];
                                 key_1_index = commandValueArray[2];
                                 key_2_index = commandValueArray[3];
-                                var new_value = fuzzing_value_generation(key_1_index, key_2_index);
-                                if (platform == "Jingdong"){
-                                    arguments[i] = arguments[i].replace(key, commandKey_2);
+                                if (mode == "infer") {
+                                    var mutated_value = infer_value_generation();
+                                    if (mutated_value == false){
+                                        mode = "fuzzing";
+                                    }
+                                    else{
+                                        commandKey_2 = mutated_value[0];
+                                        new_value = mutated_value[1];
+                                    }
+                                }
+                                else if (mode == "fuzzing"){
+                                    var new_value = fuzzing_value_generation(key_1_index, key_2_index);
+                                }
+                                if (platform == "Jingdong" || platform == "Tuya"){
+                                    arguments[i] = arguments[i].replace(key_1, commandKey_2);
+                                    arguments[i] = arguments[i].replace(value, new_value);
+                                }
+                                else if (platform == "xiaomi" || platform == "huawei"){
+                                    arguments[i] = arguments[i].replace(key_1, commandKey_1);
+                                    arguments[i] = arguments[i].replace(key_2, commandKey_2);
                                     arguments[i] = arguments[i].replace(value, new_value);
                                 }
                             }
