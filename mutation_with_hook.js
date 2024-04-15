@@ -12,9 +12,9 @@ var value = "0";
 
 var control_commands = [{1:[1,2,3]}];
 
-var platform = "Xiaomi";
+var platform = "jingdong";
 
-var all_data_type = ["int", "long", "string", "double", "float", "bool"];
+var all_data_type = ["int", "string", "float", "bool"];
 
 var data_type;
 
@@ -22,15 +22,12 @@ var data_type_fuzzing = [];
 
 var mode = "infer";
 
-var all_data_type_index = [0, 0, 0, 0, 0, 0];
+var all_data_type_index = [0, 0, 0, 0];
 
 var data_type_index;
 
 const MAX_INT_32 = 2147483647;
 const MIN_INT_32 = -2147483648;
-
-const MAX_INT_64 = 9223372036854775807;
-const MIN_INT_64 = -9223372036854775808;
 
 function data_type_initial(){
     data_type = control_commands.map(command => {
@@ -52,16 +49,8 @@ class RandomValues {
                 'fun': [this.low_pos, this.low_neg, this.big_pos, this.big_neg],
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
-            'long': {
-                'fun': [this.low_pos_long, this.low_neg_long, this.big_pos_long, this.big_neg_long],
-                'dist': [0.25, 0.25, 0.25, 0.25]
-            },
             'float': {
                 'fun': [this.low_pos_float, this.low_neg_float, this.big_pos_float, this.big_neg_float],
-                'dist': [0.25, 0.25, 0.25, 0.25]
-            },
-            'double': {
-                'fun': [this.low_pos_double, this.low_neg_double, this.big_pos_double, this.big_neg_double],
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
             'boolean': {
@@ -114,23 +103,6 @@ class RandomValues {
     big_neg() {
         return this.randomInt(MIN_INT_32, MIN_INT_32 / 2);
     }
-
-    low_pos_long() {
-        return this.randomInt(0, 255);
-    }
-
-    low_neg_long() {
-        return this.randomInt(-255, 0);
-    }
-
-    big_pos_long() {
-        return this.randomInt(MAX_INT_64 / 2, MAX_INT_64);
-    }
-
-    big_neg_long() {
-        return this.randomInt(MIN_INT_64, MIN_INT_64 / 2);
-    }
-
     low_pos_float() {
         return this.randomFloat(0.0, 255.0);
     }
@@ -146,23 +118,6 @@ class RandomValues {
     big_neg_float() {
         return this.randomFloat(MIN_INT_32, MIN_INT_32 / 2);
     }
-
-    low_pos_double() {
-        return this.randomFloat(0.0, 255.0);
-    }
-
-    low_neg_double() {
-        return this.randomFloat(-255.0, 0.0);
-    }
-
-    big_pos_double() {
-        return this.randomFloat(MAX_INT_64 / 2, MAX_INT_64);
-    }
-
-    big_neg_double() {
-        return this.randomFloat(MIN_INT_64, MIN_INT_64 / 2);
-    }
-
     true_Low() {
         return true;
     }
