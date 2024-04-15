@@ -307,7 +307,7 @@ function infer_value_generation(){
         for (var j = 0; j < data_type_index[i].length; j++) {
             for (var k = 0; k < data_type_index[i][j].length; k++) {
                 var value = data_type_index[i][j][k];
-                if (value < 6) {
+                if (value < 10) {
                     mutate_data_type = data_type[i][j][k];
                     var mutation_value = generate_infer_value_for_specific_data_type(mutate_data_type);
                     var mutation_command = getNthKey(control_commands[i], j)
