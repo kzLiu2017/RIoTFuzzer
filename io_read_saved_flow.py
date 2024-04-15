@@ -10,6 +10,18 @@ from mitmproxy.exceptions import FlowReadException
 error_dict = {"fail":0}
 count_dict = {"suc":0, "fail":0}
 
+control_commands = [{1:[1,2,3]},{2:[1,5]}]
+
+data_type_index_pre = [
+    [[0 for _ in range(6)] for _ in range(len(command[next(iter(command))]))]
+    for command in control_commands
+]
+
+data_type_index_after = [
+    [[0 for _ in range(6)] for _ in range(len(command[next(iter(command))]))]
+    for command in control_commands
+]
+
 with open("yeelight_new_method_1_18", "rb") as logfile:
     freader = io.FlowReader(logfile)
     error_list = []
@@ -30,33 +42,36 @@ with open("yeelight_new_method_1_18", "rb") as logfile:
                         response_time = f.response.timestamp_end -f.request.timestamp_start
                         if "result" in data_dict:
                             if data_dict["result"] != None:
+                                for i in data_type_index_pre:
+                                        for j in data_type_index_pre[i]:
+                                            for k in data_type_index_pre[i][j]:
+                                                if data_type_index_pre[i][j][k] == 10:
+                                                    continue
+                                                else:
+                                                    index_pre_list = []
+                                                    index_pre_list.append(i)
+                                                    index_pre_list.append(j)
+                                                    index_pre_list.append(k)
+                                                    data_type_index_pre[i][j][k] = data_type_index_pre[i][j][k]+1
                                 count = count + 1
                                 if (data_dict["result"][0]["code"] in error_dict):
                                     error_dict[data_dict["result"][0]["code"]] += 1
                                 elif (data_dict["result"][0]["code"] not in error_dict):
                                     error_dict[data_dict["result"][0]["code"]] = 1
-                                if (response_time > 0.11) or (data_dict["result"][0]["code"] == 0) or (data_dict["result"][0]["code"] == -704002000):
-                                    count_dict["suc"] += 1
-                                else:
-                                    count_dict["fail"] += 1
+                                if (response_time > 0.3)):
+                                    data_type_index_after[index_pre_list[0]][index_pre_list[1]][index_pre_list[2]] = data_type_index_after[index_pre_list[0]][index_pre_list[1]][index_pre_list[2]] + 1          
                             else:
                                 count = count - 1
-                                # error_dict["fail"] += 1
-                        #     #print(data_dict["result"][0]["code"], type(data_dict["result"][0]["code"]))
-                        #     if data_dict["result"][0]["code"] == -704083036:
-                        #         print(urllib.parse.unquote(f.request.content.decode("utf-8"))[urllib.parse.unquote(f.request.content.decode("utf-8")).index("data="):])
-                        # #         print(data_dict)
-                        #         print(index)
-
-                        # else:
-                        #     print(urllib.parse.unquote(f.request.content.decode("utf-8"))[urllib.parse.unquote(f.request.content.decode("utf-8")).index("data="):])
-                        #     print(data_dict)
-                        # if data_dict["result"] == None:
-                        #     print(urllib.parse.unquote(f.request.content.decode("utf-8"))[urllib.parse.unquote(f.request.content.decode("utf-8")).index("data="):])
-                        #     print(data_dict)
-                        if count == 5000:
-                            break
     except FlowReadException as e:
         print(f"Flow file corrupted: {e}")
-print(error_dict)
-print(count_dict)
+delete_list = []
+for i in data_type_index_after:
+    for j in data_type_index_after[i]:
+        for k in data_type_index_after[i][j]:
+            if data_type_index_after[i][j][k] < 10:
+                tmp_del_list = []
+                tmp_del_list.append(i)
+                tmp_del_list.append(j)
+                tmp_del_list.append(k)
+                delete_list.append(tmp_del_list)
+print(delete_list)
