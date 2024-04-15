@@ -29,6 +29,9 @@ var data_type_index;
 const MAX_INT_32 = 2147483647;
 const MIN_INT_32 = -2147483648;
 
+const MAX_INT_64 = 9223372036854775807;
+const MIN_INT_64 = -9223372036854775808;
+
 function data_type_initial(){
     data_type = control_commands.map(command => {
         var key = Object.keys(command)[0];
@@ -42,7 +45,6 @@ function data_type_initial(){
     });
 }
 
-
 class RandomValues {
     constructor() {
         this.proposed_vals = {
@@ -51,7 +53,7 @@ class RandomValues {
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
             'long': {
-                'fun': [this.low_pos, this.low_neg, this.big_pos, this.big_neg],
+                'fun': [this.low_pos_long, this.low_neg_long, this.big_pos_long, this.big_neg_long],
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
             'float': {
@@ -59,7 +61,7 @@ class RandomValues {
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
             'double': {
-                'fun': [this.low_pos, this.low_neg, this.big_pos, this.big_neg],
+                'fun': [this.low_pos_double, this.low_neg_double, this.big_pos_double, this.big_neg_double],
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
             'boolean': {
@@ -113,6 +115,22 @@ class RandomValues {
         return this.randomInt(MIN_INT_32, MIN_INT_32 / 2);
     }
 
+    low_pos_long() {
+        return this.randomInt(0, 255);
+    }
+
+    low_neg_long() {
+        return this.randomInt(-255, 0);
+    }
+
+    big_pos_long() {
+        return this.randomInt(MAX_INT_64 / 2, MAX_INT_64);
+    }
+
+    big_neg_long() {
+        return this.randomInt(MIN_INT_64, MIN_INT_64 / 2);
+    }
+
     low_pos_float() {
         return this.randomFloat(0.0, 255.0);
     }
@@ -129,6 +147,22 @@ class RandomValues {
         return this.randomFloat(MIN_INT_32, MIN_INT_32 / 2);
     }
 
+    low_pos_double() {
+        return this.randomFloat(0.0, 255.0);
+    }
+
+    low_neg_double() {
+        return this.randomFloat(-255.0, 0.0);
+    }
+
+    big_pos_double() {
+        return this.randomFloat(MAX_INT_64 / 2, MAX_INT_64);
+    }
+
+    big_neg_double() {
+        return this.randomFloat(MIN_INT_64, MIN_INT_64 / 2);
+    }
+
     true_Low() {
         return true;
     }
@@ -139,7 +173,7 @@ class RandomValues {
 
     printable_chars() {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const length = this.randomInt(1, 255);
+        const length = this.randomInt(1, 3000);
         let result = '"';
         for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
