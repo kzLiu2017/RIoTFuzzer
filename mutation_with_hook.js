@@ -18,6 +18,8 @@ var all_data_type = ["int", "long", "string", "double", "float", "bool"];
 
 var data_type;
 
+var data_type_fuzzing = [];
+
 var mode = "infer";
 
 var all_data_type_index = [0, 0, 0, 0, 0, 0];
@@ -153,6 +155,86 @@ class RandomValues {
     }
 }
 
+class RandomValuesCons {
+    constructor() {
+        this.proposed_vals = {
+            'int': {
+                'fun': [this.int_value],
+                'dist': [1]
+            },
+            'float': {
+                'fun': [this.float_value],
+                'dist': [1]
+            },
+            'boolean': {
+                'fun': [this.true_Low, this.false_Low],
+                'dist': [0.5, 0.5]
+            },
+            'string': {
+                'fun': [this.printable_chars],
+                'dist': [1]
+            },
+        };
+
+        Object.getOwnPropertyNames(RandomValuesCons.prototype)
+              .filter(prop => typeof this[prop] === 'function')
+              .forEach(method => this[method] = this[method].bind(this));
+    }
+
+    randomChoice(arr, dist) {
+        let acc = 0;
+        let sum = dist.reduce((acc, val) => acc + val, 0);
+        let rand = Math.random() * sum;
+        for (let i = 0; i < dist.length; i++) {
+            acc += dist[i];
+            if (rand < acc) {
+                return arr[i]();
+            }
+        }
+    }
+
+    randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    randomFloat(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    int_value() {
+        return this.randomInt(0, 10);
+    }
+
+    float_value() {
+        return this.randomFloat(0.0, 10.0);
+    }
+
+    true_Low() {
+        return true;
+    }
+
+    false_Low() {
+        return false;
+    }
+
+    printable_chars() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const length = this.randomInt(1, 4);
+        let result = '"';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result + '"';
+    }
+    generateByTypeName(typeName) {
+        if (this.proposed_vals[typeName]) {
+            return this.randomChoice(this.proposed_vals[typeName].fun, this.proposed_vals[typeName].dist);
+        } else {
+            throw new Error(`No random value generator defined for type: ${typeName}`);
+        }
+    }
+}
+
 function generate_data_type(index, valueIndex){
     dataTypeArray = data_type[index][valueIndex]
     var randomIndex = Math.floor(Math.random() * dataTypeArray.length);
@@ -163,6 +245,12 @@ function generate_data_type(index, valueIndex){
 function generate_value_for_specific_data_type(data_type_tmp){
     const randomValues = new RandomValues();
     var randomValue = randomValues.generateByTypeName(data_type_tmp);
+    return randomValue;
+}
+
+function generate_infer_value_for_specific_data_type(data_type_tmp){
+    const RandomValuesCons = new RandomValuesCons();
+    var randomValue = RandomValuesCons.generateByTypeName(data_type_tmp);
     return randomValue;
 }
 
@@ -187,7 +275,7 @@ function infer_value_generation(){
                 var value = data_type_index[i][j][k];
                 if (value < 6) {
                     mutate_data_type = data_type[i][j][k];
-                    var mutation_value = generate_value_for_specific_data_type(mutate_data_type);
+                    var mutation_value = generate_infer_value_for_specific_data_type(mutate_data_type);
                     var mutation_command = getNthKey(control_commands[i], j)
                     value = value + 1;
                     data_type_index[i][j][k] = value;
