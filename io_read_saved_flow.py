@@ -13,7 +13,7 @@ count_dict = {"suc":0, "fail":0}
 control_commands = [{1:[1,2,3]},{2:[1,5]}]
 
 data_type_index_pre = [
-    [[0 for _ in range(6)] for _ in range(len(command[next(iter(command))]))]
+    [[0 for _ in range(4)] for _ in range(len(command[next(iter(command))]))]
     for command in control_commands
 ]
 
