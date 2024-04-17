@@ -16,13 +16,31 @@ var control_commands = [{1:["CurrentPowerSum", "Electric", "Power", "Voltage"]}]
 
 var platform = "Jingdong";
 
-var all_data_type = ["int", "string", "float", "bool"];
+// var functionsToHook = [["cafebabe.ag2", "setDeviceInfo", 3]];
+
+// var target_class = "string";
+
+// var label = "\"on\"";
+
+// var key_1 = "Power";
+
+// var key_2 = "switch";
+
+// var ori_value = ["\"on\":1", "\"on\":0"];
+
+// var ori_value_key = "\"on\":"
+
+// var control_commands = [{1:["CurrentPowerSum", "Electric", "Power", "Voltage"]}];
+
+// var platform = "Huawei";
+
+var all_data_type = ["float", "string", "int", "bool"];
 
 var data_type;
 
 var data_type_fuzzing = [];
 
-var mode = "infer";
+var mode = "fuzzing";
 
 var all_data_type_index = [0, 0, 0, 0];
 
@@ -55,7 +73,7 @@ class RandomValues {
                 'fun': [this.low_pos_float, this.low_neg_float, this.big_pos_float, this.big_neg_float],
                 'dist': [0.25, 0.25, 0.25, 0.25]
             },
-            'boolean': {
+            'bool': {
                 'fun': [this.true_Low, this.false_Low],
                 'dist': [0.5, 0.5]
             },
@@ -157,7 +175,7 @@ class RandomValuesCons {
                 'fun': [this.float_value],
                 'dist': [1]
             },
-            'boolean': {
+            'bool': {
                 'fun': [this.true_Low, this.false_Low],
                 'dist': [0.5, 0.5]
             },
@@ -170,8 +188,6 @@ class RandomValuesCons {
         Object.getOwnPropertyNames(RandomValuesCons.prototype)
               .filter(prop => typeof this[prop] === 'function')
               .forEach(method => this[method] = this[method].bind(this));
-        console.log(Object.getOwnPropertyNames(RandomValuesCons.prototype).filter(prop => typeof this[prop] === 'function'))
-
     }
 
     randomChoice(arr, dist) {
@@ -229,10 +245,10 @@ class RandomValuesCons {
 }
 
 function generate_data_type(index, valueIndex){
-    dataTypeArray = data_type[index][valueIndex]
+    var dataTypeArray = data_type[index][valueIndex]
     var randomIndex = Math.floor(Math.random() * dataTypeArray.length);
-    var data_type = dataTypeArray[randomIndex];
-    return data_type;
+    var data_type_tmp = dataTypeArray[randomIndex];
+    return data_type_tmp;
 }
 
 function generate_value_for_specific_data_type(data_type_tmp){
@@ -274,7 +290,6 @@ function infer_value_generation(){
                     var mutation_command = getNthKey(control_commands[i], j)
                     value = value + 1;
                     data_type_index[i][j][k] = value;
-                    console.log("mutation_command[k], mutation_value", mutation_command, mutation_value)
                     return [mutation_command, mutation_value];
                 } else {
                     console.log(`Skipping value: ${value} at [${i}][${j}][${k}]`);
@@ -329,7 +344,6 @@ Java.perform(function() {
                           }
                         }
                         if (argType == target_class){
-                            console.log(arguments[i].indexOf(label));
                             if (arguments[i].indexOf(label)!=-1){
                                 var commandValueArray = command_select();
                                 var commandKey_1 = commandValueArray[0];
@@ -351,24 +365,21 @@ Java.perform(function() {
                                 }
                                 if (platform == "Jingdong" || platform == "Tuya"){
                                     arguments[i] = arguments[i].replace(key_1, commandKey_2);
-                                    console.log("arguments[i]", arguments[i])
                                 }
                                 else if (platform == "xiaomi" || platform == "huawei"){
                                     arguments[i] = arguments[i].replace(key_1, commandKey_1);
                                     arguments[i] = arguments[i].replace(key_2, commandKey_2);
                                 }
                                 for (var index = 0; index < arguments.length; index++) {
-                                    console.log("arguments[i]", arguments[i].indexOf(ori_value[index]), ori_value[index],new_value)
                                     if (arguments[i].indexOf(ori_value[index]) != -1){
                                         arguments[i] = arguments[i].replace(ori_value[index], ori_value_key+new_value);
-                                        console.log(arguments[i])
+                                        console.log(arguments[i]);
                                         break;
                                     }
                                 }
                             }
                         }
                     }
-                    console.log(arguments[i]);
                     var retval = this[methodName].apply(this, arguments); // 调用原方法
                     console.log("Leaving " + className + "." + methodName);
                     console.log("Return value: " + retval);
