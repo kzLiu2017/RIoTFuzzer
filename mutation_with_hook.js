@@ -10,7 +10,8 @@ var key_2;
 
 var value = "0";
 
-var control_commands = [{1:[1,2,3]}];
+var control_commands = [{1:["CurrentPowerSum", "Electric", "Power", "Voltage"]}];
+
 
 var platform = "jingdong";
 
