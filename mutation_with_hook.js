@@ -2,18 +2,19 @@ var functionsToHook = [["com.jd.smart.dynamiclayout.view.html.WebViewJavascriptB
 
 var target_class = "string";
 
-var label = "current_value";
+var label = "\"current_value\"";
 
 var key_1 = "Power";
 
 var key_2;
 
-var value = "0";
+var ori_value = ["\"current_value\":1", "\"current_value\":0"];
+
+var ori_value_key = "\"current_value\":"
 
 var control_commands = [{1:["CurrentPowerSum", "Electric", "Power", "Voltage"]}];
 
-
-var platform = "jingdong";
+var platform = "Jingdong";
 
 var all_data_type = ["int", "string", "float", "bool"];
 
@@ -90,34 +91,34 @@ class RandomValues {
     }
 
     low_pos() {
-        return this.randomInt(0, 255);
+        return Math.floor(Math.random() * 256);
     }
 
     low_neg() {
-        return this.randomInt(-255, 0);
+        return Math.floor(Math.random() * 255) - 255;
     }
 
     big_pos() {
-        return this.randomInt(MAX_INT_32 / 2, MAX_INT_32);
+        return Math.floor(Math.random() * (MAX_INT_32 / 2 + 1)) + MAX_INT_32 / 2;
     }
 
     big_neg() {
-        return this.randomInt(MIN_INT_32, MIN_INT_32 / 2);
+        return Math.floor(Math.random() * (0 - MIN_INT_32 / 2 + 1)) + MIN_INT_32;
     }
     low_pos_float() {
-        return this.randomFloat(0.0, 255.0);
+        return Math.random() * 255.0;
     }
 
     low_neg_float() {
-        return this.randomFloat(-255.0, 0.0);
+        return Math.random() * 255.0 - 255.0;
     }
 
     big_pos_float() {
-        return this.randomFloat(MAX_INT_32 / 2, MAX_INT_32);
+        return Math.random() * MAX_INT_32 / 2 + MAX_INT_32 / 2
     }
 
     big_neg_float() {
-        return this.randomFloat(MIN_INT_32, MIN_INT_32 / 2);
+        return Math.random() * (0 - MIN_INT_32 / 2) + MIN_INT_32;
     }
     true_Low() {
         return true;
@@ -129,7 +130,7 @@ class RandomValues {
 
     printable_chars() {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const length = this.randomInt(1, 3000);
+        const length = Math.floor(Math.random() * 3000) + 1
         let result = '"';
         for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -169,6 +170,8 @@ class RandomValuesCons {
         Object.getOwnPropertyNames(RandomValuesCons.prototype)
               .filter(prop => typeof this[prop] === 'function')
               .forEach(method => this[method] = this[method].bind(this));
+        console.log(Object.getOwnPropertyNames(RandomValuesCons.prototype).filter(prop => typeof this[prop] === 'function'))
+
     }
 
     randomChoice(arr, dist) {
@@ -192,11 +195,11 @@ class RandomValuesCons {
     }
 
     int_value() {
-        return this.randomInt(0, 10);
+        return Math.floor(Math.random() * 11);
     }
 
     float_value() {
-        return this.randomFloat(0.0, 10.0);
+        return Math.random() * 10.0;
     }
 
     true_Low() {
@@ -209,7 +212,7 @@ class RandomValuesCons {
 
     printable_chars() {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const length = this.randomInt(1, 4);
+        const length = Math.floor(Math.random() * 4) + 1
         let result = '"';
         for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -239,8 +242,8 @@ function generate_value_for_specific_data_type(data_type_tmp){
 }
 
 function generate_infer_value_for_specific_data_type(data_type_tmp){
-    const RandomValuesCons = new RandomValuesCons();
-    var randomValue = RandomValuesCons.generateByTypeName(data_type_tmp);
+    const randomValues  = new RandomValuesCons();
+    var randomValue = randomValues .generateByTypeName(data_type_tmp);
     return randomValue;
 }
 
@@ -252,10 +255,12 @@ function fuzzing_value_generation(index, valueIndex){
 
 function getNthKey(obj, n) {
     const keys = Object.keys(obj);
-    if (n > 0 && n <= keys.length) {
-        return keys[n - 1];
+    try {
+        return obj[keys][n];
     }
-    return undefined;
+    catch (e) {
+        return undefined;
+    }
 }
 
 function infer_value_generation(){
@@ -264,12 +269,13 @@ function infer_value_generation(){
             for (var k = 0; k < data_type_index[i][j].length; k++) {
                 var value = data_type_index[i][j][k];
                 if (value < 10) {
-                    mutate_data_type = data_type[i][j][k];
+                    var mutate_data_type = data_type[i][j][k];
                     var mutation_value = generate_infer_value_for_specific_data_type(mutate_data_type);
                     var mutation_command = getNthKey(control_commands[i], j)
                     value = value + 1;
                     data_type_index[i][j][k] = value;
-                    return [mutation_command[k], mutation_value];
+                    console.log("mutation_command[k], mutation_value", mutation_command, mutation_value)
+                    return [mutation_command, mutation_value];
                 } else {
                     console.log(`Skipping value: ${value} at [${i}][${j}][${k}]`);
                     continue;
@@ -296,6 +302,7 @@ function command_select(){
 }
 
 Java.perform(function() {
+    data_type_initial()
     functionsToHook.forEach(function(functionInfo) {
         var className = functionInfo[0];
         var methodName = functionInfo[1];
@@ -321,14 +328,14 @@ Java.perform(function() {
                             // 处理异常（可能是非 Java 对象）
                           }
                         }
-                        console.log("Arg[" + i + "]: " + arguments[i]);
                         if (argType == target_class){
+                            console.log(arguments[i].indexOf(label));
                             if (arguments[i].indexOf(label)!=-1){
-                                commandValueArray = command_select();
-                                commandKey_1 = commandValueArray[0];
-                                commandKey_2 = commandValueArray[1];
-                                key_1_index = commandValueArray[2];
-                                key_2_index = commandValueArray[3];
+                                var commandValueArray = command_select();
+                                var commandKey_1 = commandValueArray[0];
+                                var commandKey_2 = commandValueArray[1];
+                                var key_1_index = commandValueArray[2];
+                                var key_2_index = commandValueArray[3];
                                 if (mode == "infer") {
                                     var mutated_value = infer_value_generation();
                                     if (mutated_value == false){
@@ -344,16 +351,24 @@ Java.perform(function() {
                                 }
                                 if (platform == "Jingdong" || platform == "Tuya"){
                                     arguments[i] = arguments[i].replace(key_1, commandKey_2);
-                                    arguments[i] = arguments[i].replace(value, new_value);
+                                    console.log("arguments[i]", arguments[i])
                                 }
                                 else if (platform == "xiaomi" || platform == "huawei"){
                                     arguments[i] = arguments[i].replace(key_1, commandKey_1);
                                     arguments[i] = arguments[i].replace(key_2, commandKey_2);
-                                    arguments[i] = arguments[i].replace(value, new_value);
+                                }
+                                for (var index = 0; index < arguments.length; index++) {
+                                    console.log("arguments[i]", arguments[i].indexOf(ori_value[index]), ori_value[index],new_value)
+                                    if (arguments[i].indexOf(ori_value[index]) != -1){
+                                        arguments[i] = arguments[i].replace(ori_value[index], ori_value_key+new_value);
+                                        console.log(arguments[i])
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+                    console.log(arguments[i]);
                     var retval = this[methodName].apply(this, arguments); // 调用原方法
                     console.log("Leaving " + className + "." + methodName);
                     console.log("Return value: " + retval);
