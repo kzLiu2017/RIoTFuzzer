@@ -10,7 +10,8 @@ from mitmproxy.exceptions import FlowReadException
 error_dict = {"fail":0}
 count_dict = {"suc":0, "fail":0}
 
-control_commands = [{1:[1,2,3]},{2:[1,5]}]
+control_commands = [{1:["CurrentPowerSum", "Electric", "Power", "Voltage"]}]
+
 
 data_type_index_pre = [
     [[0 for _ in range(4)] for _ in range(len(command[next(iter(command))]))]
@@ -22,7 +23,7 @@ data_type_index_after = [
     for command in control_commands
 ]
 
-with open("yeelight_new_method_1_18", "rb") as logfile:
+with open("bull_new_method_1_18", "rb") as logfile:
     freader = io.FlowReader(logfile)
     error_list = []
     count = 0
@@ -31,7 +32,7 @@ with open("yeelight_new_method_1_18", "rb") as logfile:
         for f in freader.stream():
             index = index + 1
             if isinstance(f, http.HTTPFlow):
-                if f.request.path == "/app/miotspec/prop/set":
+                if f.request.path == "controlDevice_v1":
                     if f.response != None:
                         request_data = f.request.content.decode("utf-8")
                         data_str = f.response.content.decode("utf-8")
