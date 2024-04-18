@@ -25,11 +25,14 @@ def match_interface_implement(graph, target_func):
         if target_func in label:
             print(f"Vertex {idx}: Label = {label}")
 
-g = Graph.Read_GML("callgraph.gml")
+g = Graph.Read_GML("/Data/diane-docker/workdir/tuya/callgraph.gml")
 skip = ["bluetooth"]
 # 获取所有顶点的标签
 labels = g.vs['label']
-#target_func = "com/xiaomi/smarthome/core/server/ICoreApi$Stub;->onTransact"
-target_func = "sendSmartHomeRequest"
-match_interface_implement(g, target_func)
+# target_func = "com/xiaomi/smarthome/core/server/ICoreApi$Stub;->onTransact"
+# target_func = "sendSmartHomeRequest"
+# target_func = "startPtzLeft"
+target_func = "startPtz("
+get_successors(g, target_func)
+# match_interface_implement(g, target_func)
 
