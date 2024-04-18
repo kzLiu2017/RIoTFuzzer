@@ -1,3 +1,17 @@
+// var target_function = [
+//     [
+//         "com.jd.smart.dynamiclayout.view.html.WebViewJavascriptBridge",
+//         "_handleMessageFromJs",
+//         [
+//             "java.lang.String",
+//             "java.lang.String",
+//             "java.lang.String",
+//             "java.lang.String",
+//             "java.lang.String",
+//         ],
+//         "void"
+//     ]
+// ]
 var target_function = [
     [
         "com.jd.smart.dynamiclayout.view.html.WebViewJavascriptBridge",
