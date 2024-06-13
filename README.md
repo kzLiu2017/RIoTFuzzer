@@ -4,7 +4,7 @@
 
 1. First reverse engineer the companion app with apktool (take JD Home app as example)
 ```shell
-  java -jar apktool.jar d om.jd.iots.apk
+  java -jar apktool.jar d jd_1.9.2_126_com.jd.iots_main_standalone.apk
 ```
 2. Finding the border fucntion
 ```shell
@@ -16,7 +16,7 @@
     * Run the frida server in Android phone
     * find mutation point with frida 
     ```
-      frida -U om.jd.iots -l find_mutation_point_with_hook.js
+      frida -U com.jd.iots -l find_mutation_point_with_hook.js
     ```
     * If does not identify the control command,   perform further call graph analysis
     ```
@@ -24,5 +24,5 @@
     ```
 4. After discovering the mutation point, start remote fuzzing
 ```
-  frida -U om.jd.iots -l mutation_with_hook.js
+  frida -U com.jd.iots -l mutation_with_hook.js
 ```
