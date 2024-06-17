@@ -11,7 +11,12 @@
   python3 find_jsinterfacemethod.py
 ```
 
-3. Identify the mutation point
+3. Construct the call graph (optional)
+```
+  androguard cg XX.apk -o callgraph.gml
+```
+
+4. Identify the mutation point
     * Configure the target_function in the  `find_mutation_point_with_hook.js` to the border functions found in last step.
     * Run the frida server in Android phone
     * find mutation point with frida 
