@@ -27,11 +27,11 @@
     ```
       python3 analyze_cg.py
     ```
-4. After discovering the mutation point, start data type infer
+5. After discovering the mutation point, start data type infer
 ```
   frida -U com.jd.iots -l mutation_with_hook.js
 ```
-5. Infer the cloud server validation with 
+6. Infer the cloud server validation with 
 ```
   python3 data_type_infer_traffic_analysis.py
 ```
