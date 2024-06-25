@@ -17,7 +17,7 @@
 ```
 
 4. Identify the mutation point
-    * Configure the target_function in the  `find_mutation_point_with_hook.js` to the border functions found in last step.
+    * Configure the target_function in the  `find_mutation_point_with_hook.js` to the border functions found in step 3.
     * Run the frida server in Android phone
     * find mutation point with frida 
     ```
